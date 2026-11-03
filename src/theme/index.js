@@ -1,8 +1,11 @@
 import { theme } from "antd";
+import { colors } from "./colors";
 
 const token = {
-  colorPrimary: "#1677ff",
-  borderRadius: 8,
+  colorPrimary: colors.primary,
+  colorPrimaryHover: colors.primaryLight,
+  colorPrimaryActive: colors.primaryDark,
+  borderRadius: 12,
 };
 
 export const lightTheme = { algorithm: theme.defaultAlgorithm, token };

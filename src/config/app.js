@@ -1,4 +1,4 @@
 export const appConfig = {
-  defaultLang: "ar",
+  defaultLang: "en",
   defaultTheme: "system", // 'light' | 'dark' | 'system'
 };
