@@ -8,10 +8,10 @@ import {
   ShoppingOutlined,
   TeamOutlined,
 } from "@ant-design/icons";
-import { logout } from "../features/auth/api";
+
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { TOKEN_KEY } from "@/constants/storage";
-import { colors } from "@/theme/colors";
+import { logout } from "@/features/auth/api";
 
 const { Sider, Header, Content } = Layout;
 
@@ -32,6 +32,10 @@ export default function MainLayout() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const selectedKey = location.pathname.startsWith("/dashboard/products/")
+    ? "/dashboard/products"
+    : location.pathname;
+
   const handleLogout = async () => {
     try {
       await logout();
@@ -44,53 +48,43 @@ export default function MainLayout() {
   };
 
   return (
-    <Layout style={{ minHeight: "100vh" }}>
+    <Layout className="admin-layout">
       <Sider
-        width={230}
+        width={250}
         breakpoint="lg"
         collapsedWidth={0}
-        theme="light"
-        style={{ borderInlineEnd: `1px solid ${colors.border}` }}
+        className="admin-sidebar"
       >
-        <div style={{ padding: "20px 24px" }}>
-          <Typography.Title
-            level={4}
-            style={{ margin: 0, color: colors.primary }}
-          >
-            Admin Panel
-          </Typography.Title>
+        <div className="sidebar-brand">
+          <ShoppingCartOutlined className="sidebar-brand-icon" />
+          <Typography.Title level={4}>Admin Panel</Typography.Title>
         </div>
 
         <Menu
+          className="admin-sidebar-menu"
           mode="inline"
+          theme="dark"
           items={items}
-          selectedKeys={[location.pathname]}
+          selectedKeys={[selectedKey]}
           onClick={({ key }) => navigate(key)}
-          style={{ borderInlineEnd: "none" }}
         />
       </Sider>
 
-      <Layout>
-        <Header
-          style={{
-            background: "#fff",
-            borderBottom: `1px solid ${colors.border}`,
-            padding: "0 24px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "flex-end",
-            gap: 12,
-          }}
-        >
-          <Typography.Text style={{ color: colors.textSecondary }}>
-            Admin
-          </Typography.Text>
-          <Button icon={<LogoutOutlined />} onClick={handleLogout}>
+      <Layout className="admin-main-layout">
+        <Header className="admin-header">
+          <Typography.Text className="admin-user">Admin</Typography.Text>
+
+          <Button
+            type="primary"
+            icon={<LogoutOutlined />}
+            onClick={handleLogout}
+            className="admin-logout"
+          >
             Logout
           </Button>
         </Header>
 
-        <Content style={{ padding: 24, background: colors.gradientMiddle }}>
+        <Content className="admin-content">
           <Outlet />
         </Content>
       </Layout>

@@ -7,6 +7,7 @@ import CategoriesPage from "@/pages/Categories/CategoriesPage";
 import OrdersPage from "@/pages/Orders/OrdersPage";
 import UsersPage from "@/pages/Users/UsersPage";
 import NotificationsPage from "@/pages/Notifications/NotificationsPage";
+import ProductDetailsPage from "@/pages/Products/ProductDetailsPage";
 
 export default function App() {
   return (
@@ -19,6 +20,7 @@ export default function App() {
         <Route index element={<OverviewPage />} />
         <Route path="products" element={<ProductsPage />} />
         <Route path="categories" element={<CategoriesPage />} />
+        <Route path="products/:id" element={<ProductDetailsPage />} />
         <Route path="orders" element={<OrdersPage />} />
         <Route path="users" element={<UsersPage />} />
         <Route path="notifications" element={<NotificationsPage />} />

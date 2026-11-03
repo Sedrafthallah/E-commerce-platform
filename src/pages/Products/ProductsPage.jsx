@@ -1,30 +1,16 @@
 import { useEffect, useState } from "react";
 import { Alert, Button, Card, Space, Table, Tag, Typography } from "antd";
+import { Alert, Button, Table, Tag, Typography } from "antd";
+import { useNavigate } from "react-router-dom";
+
 import { getProducts } from "@/features/products/api";
 import { getCategories } from "@/features/categories/api";
 import { getErrorMessage } from "@/utils/getErrorMessage";
 
-const columns = [
-  { title: "ID", dataIndex: "id", width: 70 },
-  { title: "Name", dataIndex: "name" },
-  { title: "Category", render: (_, record) => record.category?.name ?? "-" },
-  {
-    title: "Price",
-    dataIndex: "price",
-    render: (price) => Number(price).toFixed(2),
-  },
-  {
-    title: "Status",
-    dataIndex: "is_active",
-    render: (active) =>
-      active ? <Tag color="green">Active</Tag> : <Tag>Inactive</Tag>,
-  },
-  { title: "Created", dataIndex: "created_at" },
-];
-
 export default function ProductsPage() {
   const [categories, setCategories] = useState([]);
   const [categoryId, setCategoryId] = useState("all");
+  const navigate = useNavigate();
 
   const [items, setItems] = useState([]);
   const [pagination, setPagination] = useState({
@@ -32,6 +18,7 @@ export default function ProductsPage() {
     per_page: 5,
     total: 0,
   });
+
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -50,6 +37,7 @@ export default function ProductsPage() {
     async function load() {
       setLoading(true);
       setError("");
+
       try {
         const body = await getProducts({
           page,
@@ -57,7 +45,10 @@ export default function ProductsPage() {
           include_inactive: 1,
           ...(categoryId !== "all" && { category_id: categoryId }),
         });
+        const body = await getProducts({ page, per_page: 5 });
+
         if (ignore) return;
+
         setItems(body.data.items);
         setPagination(body.data.pagination);
       } catch (err) {
@@ -68,6 +59,7 @@ export default function ProductsPage() {
     }
 
     load();
+
     return () => {
       ignore = true;
     };
@@ -79,6 +71,45 @@ export default function ProductsPage() {
   };
 
   const tabs = [{ id: "all", name: "All" }, ...categories];
+
+  const columns = [
+    { title: "ID", dataIndex: "id", width: 70 },
+    { title: "Name", dataIndex: "name" },
+    {
+      title: "Category",
+      render: (_, record) => record.category?.name ?? "-",
+    },
+    {
+      title: "Price",
+      dataIndex: "price",
+      render: (price) => Number(price).toFixed(2),
+    },
+    {
+      title: "Status",
+      dataIndex: "is_active",
+      render: (active) =>
+        active ? (
+          <Tag color="green">Active</Tag>
+        ) : (
+          <Tag color="red">Inactive</Tag>
+        ),
+    },
+    { title: "Created", dataIndex: "created_at" },
+    {
+      title: "Action",
+      width: 110,
+      render: (_, record) => (
+        <Button
+          type="primary"
+          ghost
+          size="small"
+          onClick={() => navigate(`/dashboard/products/${record.id}`)}
+        >
+          Details
+        </Button>
+      ),
+    },
+  ];
 
   return (
     <div>
@@ -104,6 +135,12 @@ export default function ProductsPage() {
 
       {error && (
         <Alert type="error" showIcon title={error} style={{ marginBottom: 16 }} />
+        <Alert
+          type="error"
+          showIcon
+          message={error}
+          style={{ marginBottom: 16 }}
+        />
       )}
 
       <Card title="Product List">
