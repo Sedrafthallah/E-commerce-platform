@@ -1,0 +1,16 @@
+{
+  "app": { "title": "Dashboard" },
+  "common": {
+    "language": "Change language",
+    "theme": "Change theme",
+    "save": "Save",
+    "cancel": "Cancel"
+  },
+  "errors": {
+    "network": "Unable to connect to the server",
+    "forbidden": "You do not have permission to perform this action",
+    "notFound": "The requested item was not found",
+    "server": "Server error, please try again later",
+    "unknown": "An unexpected error occurred"
+  }
+}
