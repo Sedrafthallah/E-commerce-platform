@@ -1,11 +1,15 @@
 import { useEffect, useState } from "react";
+import { Alert, Button, Card, Space, Table, Tag, Typography } from "antd";
 import { Alert, Button, Table, Tag, Typography } from "antd";
 import { useNavigate } from "react-router-dom";
 
 import { getProducts } from "@/features/products/api";
+import { getCategories } from "@/features/categories/api";
 import { getErrorMessage } from "@/utils/getErrorMessage";
 
 export default function ProductsPage() {
+  const [categories, setCategories] = useState([]);
+  const [categoryId, setCategoryId] = useState("all");
   const navigate = useNavigate();
 
   const [items, setItems] = useState([]);
@@ -19,6 +23,14 @@ export default function ProductsPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  // تبويبات التصنيفات: مرة وحدة
+  useEffect(() => {
+    getCategories()
+      .then((body) => setCategories(body.data))
+      .catch((err) => setError(getErrorMessage(err)));
+  }, []);
+
+  // المنتجات: كل ما تغيّرت الصفحة أو التصنيف
   useEffect(() => {
     let ignore = false;
 
@@ -27,6 +39,12 @@ export default function ProductsPage() {
       setError("");
 
       try {
+        const body = await getProducts({
+          page,
+          per_page: 5,
+          include_inactive: 1,
+          ...(categoryId !== "all" && { category_id: categoryId }),
+        });
         const body = await getProducts({ page, per_page: 5 });
 
         if (ignore) return;
@@ -45,7 +63,14 @@ export default function ProductsPage() {
     return () => {
       ignore = true;
     };
-  }, [page]);
+  }, [page, categoryId]);
+
+  const handleCategoryChange = (id) => {
+    setCategoryId(id);
+    setPage(1); // رجّع لأول صفحة
+  };
+
+  const tabs = [{ id: "all", name: "All" }, ...categories];
 
   const columns = [
     { title: "ID", dataIndex: "id", width: 70 },
@@ -87,10 +112,29 @@ export default function ProductsPage() {
   ];
 
   return (
-    <div style={{ padding: 24 }}>
-      <Typography.Title level={3}>Products</Typography.Title>
+    <div>
+      <Typography.Title level={3} style={{ marginBottom: 4 }}>
+        Products
+      </Typography.Title>
+      <Typography.Paragraph type="secondary">
+        Browse products by category.
+      </Typography.Paragraph>
+
+      <Space wrap style={{ marginBottom: 20 }}>
+        {tabs.map((tab) => (
+          <Button
+            key={tab.id}
+            shape="round"
+            type={categoryId === tab.id ? "primary" : "default"}
+            onClick={() => handleCategoryChange(tab.id)}
+          >
+            {tab.name}
+          </Button>
+        ))}
+      </Space>
 
       {error && (
+        <Alert type="error" showIcon title={error} style={{ marginBottom: 16 }} />
         <Alert
           type="error"
           showIcon
@@ -99,20 +143,22 @@ export default function ProductsPage() {
         />
       )}
 
-      <Table
-        rowKey="id"
-        loading={loading}
-        dataSource={items}
-        columns={columns}
-        scroll={{ x: true }}
-        pagination={{
-          current: pagination.current_page,
-          pageSize: pagination.per_page,
-          total: pagination.total,
-          showSizeChanger: false,
-          onChange: setPage,
-        }}
-      />
+      <Card title="Product List">
+        <Table
+          rowKey="id"
+          loading={loading}
+          dataSource={items}
+          columns={columns}
+          scroll={{ x: true }}
+          pagination={{
+            current: pagination.current_page,
+            pageSize: pagination.per_page,
+            total: pagination.total,
+            showSizeChanger: false,
+            onChange: setPage,
+          }}
+        />
+      </Card>
     </div>
   );
 }
