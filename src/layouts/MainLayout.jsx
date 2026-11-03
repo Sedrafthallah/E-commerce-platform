@@ -1,5 +1,6 @@
 import { Button, Layout, Menu, Typography } from "antd";
 import {
+  
   BellOutlined,
   DashboardOutlined,
   LogoutOutlined,
@@ -17,8 +18,9 @@ const { Sider, Header, Content } = Layout;
 const items = [
   { key: "/dashboard", icon: <DashboardOutlined />, label: "Overview" },
   { key: "/dashboard/products", icon: <ShoppingOutlined />, label: "Products" },
+ 
   { key: "/dashboard/orders", icon: <ShoppingCartOutlined />, label: "Orders" },
-  { key: "/dashboard/users", icon: <TeamOutlined />, label: "Users" },
+ 
   {
     key: "/dashboard/notifications",
     icon: <BellOutlined />,

@@ -3,6 +3,7 @@ import LoginPage from "@/pages/Login/LoginPage";
 import MainLayout from "@/layouts/MainLayout";
 import OverviewPage from "@/pages/Overview/OverviewPage";
 import ProductsPage from "@/pages/Products/ProductsPage";
+import CategoriesPage from "@/pages/Categories/CategoriesPage";
 import OrdersPage from "@/pages/Orders/OrdersPage";
 import UsersPage from "@/pages/Users/UsersPage";
 import NotificationsPage from "@/pages/Notifications/NotificationsPage";
@@ -17,6 +18,7 @@ export default function App() {
       <Route path="/dashboard" element={<MainLayout />}>
         <Route index element={<OverviewPage />} />
         <Route path="products" element={<ProductsPage />} />
+        <Route path="categories" element={<CategoriesPage />} />
         <Route path="orders" element={<OrdersPage />} />
         <Route path="users" element={<UsersPage />} />
         <Route path="notifications" element={<NotificationsPage />} />
