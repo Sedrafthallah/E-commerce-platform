@@ -7,6 +7,7 @@ import {
   ShoppingOutlined,
   TeamOutlined,
 } from "@ant-design/icons";
+import { logout } from "../features/auth/api";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { TOKEN_KEY } from "@/constants/storage";
 import { colors } from "@/theme/colors";
@@ -29,9 +30,15 @@ export default function MainLayout() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const handleLogout = () => {
-    localStorage.removeItem(TOKEN_KEY);
-    navigate("/login");
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      console.error("Logout API error:", error);
+    } finally {
+      localStorage.removeItem(TOKEN_KEY);
+      navigate("/login", { replace: true });
+    }
   };
 
   return (

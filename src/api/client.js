@@ -4,9 +4,11 @@ import { TOKEN_KEY } from "@/constants/storage";
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
   timeout: 0,
-  headers: { Accept: "application/json",
-  "ngrok-free-app": "true",
-  "ngrok-skip-browser-warning": "true", },
+  headers: {
+    Accept: "application/json",
+    "ngrok-free-app": "true",
+    "ngrok-skip-browser-warning": "true",
+  },
 });
 
 api.interceptors.request.use((config) => {
