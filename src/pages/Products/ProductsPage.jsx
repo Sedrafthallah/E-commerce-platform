@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { Alert, Button, Card, Space, Table, Tag, Typography } from "antd";
-import { Alert, Button, Table, Tag, Typography } from "antd";
 import { useNavigate } from "react-router-dom";
 
 import { getProducts } from "@/features/products/api";
@@ -10,9 +9,8 @@ import { getErrorMessage } from "@/utils/getErrorMessage";
 export default function ProductsPage() {
   const [categories, setCategories] = useState([]);
   const [categoryId, setCategoryId] = useState("all");
-  const navigate = useNavigate();
-
   const [items, setItems] = useState([]);
+
   const [pagination, setPagination] = useState({
     current_page: 1,
     per_page: 5,
@@ -23,14 +21,16 @@ export default function ProductsPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // تبويبات التصنيفات: مرة وحدة
+  const navigate = useNavigate();
+
+  // Load categories once
   useEffect(() => {
     getCategories()
       .then((body) => setCategories(body.data))
       .catch((err) => setError(getErrorMessage(err)));
   }, []);
 
-  // المنتجات: كل ما تغيّرت الصفحة أو التصنيف
+  // Load products when page or category changes
   useEffect(() => {
     let ignore = false;
 
@@ -43,18 +43,23 @@ export default function ProductsPage() {
           page,
           per_page: 5,
           include_inactive: 1,
-          ...(categoryId !== "all" && { category_id: categoryId }),
+          ...(categoryId !== "all" && {
+            category_id: categoryId,
+          }),
         });
-        const body = await getProducts({ page, per_page: 5 });
 
         if (ignore) return;
 
         setItems(body.data.items);
         setPagination(body.data.pagination);
       } catch (err) {
-        if (!ignore) setError(getErrorMessage(err));
+        if (!ignore) {
+          setError(getErrorMessage(err));
+        }
       } finally {
-        if (!ignore) setLoading(false);
+        if (!ignore) {
+          setLoading(false);
+        }
       }
     }
 
@@ -67,7 +72,7 @@ export default function ProductsPage() {
 
   const handleCategoryChange = (id) => {
     setCategoryId(id);
-    setPage(1); // رجّع لأول صفحة
+    setPage(1);
   };
 
   const tabs = [{ id: "all", name: "All" }, ...categories];
@@ -113,9 +118,37 @@ export default function ProductsPage() {
 
   return (
     <div>
-      <Typography.Title level={3} style={{ marginBottom: 4 }}>
+      {/* <Typography.Title level={3} style={{ marginBottom: 4 }}>
         Products
       </Typography.Title>
+      <Space>
+        <Button
+          type="primary"
+          onClick={() => navigate("/dashboard/products/add")}
+        >
+          + Add Product
+        </Button>
+      </Space> */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: 24,
+        }}
+      >
+        <Typography.Title level={3} style={{ margin: 0 }}>
+          Products
+        </Typography.Title>
+
+        <Button
+          type="primary"
+          onClick={() => navigate("/dashboard/products/add")}
+        >
+          + Add Product
+        </Button>
+      </div>
+
       <Typography.Paragraph type="secondary">
         Browse products by category.
       </Typography.Paragraph>
@@ -134,7 +167,6 @@ export default function ProductsPage() {
       </Space>
 
       {error && (
-        <Alert type="error" showIcon title={error} style={{ marginBottom: 16 }} />
         <Alert
           type="error"
           showIcon

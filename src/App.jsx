@@ -8,6 +8,7 @@ import OrdersPage from "@/pages/Orders/OrdersPage";
 import UsersPage from "@/pages/Users/UsersPage";
 import NotificationsPage from "@/pages/Notifications/NotificationsPage";
 import ProductDetailsPage from "@/pages/Products/ProductDetailsPage";
+import AddProductPage from "@/pages/Products/AddProductPage";
 
 export default function App() {
   return (
@@ -19,6 +20,7 @@ export default function App() {
       <Route path="/dashboard" element={<MainLayout />}>
         <Route index element={<OverviewPage />} />
         <Route path="products" element={<ProductsPage />} />
+        <Route path="products/add" element={<AddProductPage />} />
         <Route path="categories" element={<CategoriesPage />} />
         <Route path="products/:id" element={<ProductDetailsPage />} />
         <Route path="orders" element={<OrdersPage />} />
