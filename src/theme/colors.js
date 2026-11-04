@@ -17,4 +17,11 @@ export const colors = {
 
   primaryShadow: "rgba(101, 88, 211, 0.22)",
   buttonShadow: "rgba(101, 88, 211, 0.28)",
+  sidebar: "#21143D",
+  sidebarDark: "#170F2C",
+  sidebarText: "#DED6EF",
+  sidebarSelected: "#6940CF",
+  sidebarGradient: "linear-gradient(90deg, #6940CF, #48239B)",
+  cardHeader: "#F0E9FF",
+  pageBackground: "#F8F6FF",
 };

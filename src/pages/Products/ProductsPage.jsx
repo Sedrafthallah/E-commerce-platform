@@ -1,33 +1,20 @@
 import { useEffect, useState } from "react";
-import { Alert, Table, Tag, Typography } from "antd";
+import { Alert, Button, Table, Tag, Typography } from "antd";
+import { useNavigate } from "react-router-dom";
+
 import { getProducts } from "@/features/products/api";
 import { getErrorMessage } from "@/utils/getErrorMessage";
 
-const columns = [
-  { title: "ID", dataIndex: "id", width: 70 },
-  { title: "Name", dataIndex: "name" },
-  { title: "Category", render: (_, record) => record.category?.name ?? "-" },
-  {
-    title: "Price",
-    dataIndex: "price",
-    render: (price) => Number(price).toFixed(2),
-  },
-  {
-    title: "Status",
-    dataIndex: "is_active",
-    render: (active) =>
-      active ? <Tag color="green">Active</Tag> : <Tag>Inactive</Tag>,
-  },
-  { title: "Created", dataIndex: "created_at" },
-];
-
 export default function ProductsPage() {
+  const navigate = useNavigate();
+
   const [items, setItems] = useState([]);
   const [pagination, setPagination] = useState({
     current_page: 1,
     per_page: 5,
     total: 0,
   });
+
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -38,9 +25,12 @@ export default function ProductsPage() {
     async function load() {
       setLoading(true);
       setError("");
+
       try {
         const body = await getProducts({ page, per_page: 5 });
+
         if (ignore) return;
+
         setItems(body.data.items);
         setPagination(body.data.pagination);
       } catch (err) {
@@ -51,17 +41,62 @@ export default function ProductsPage() {
     }
 
     load();
+
     return () => {
       ignore = true;
     };
   }, [page]);
+
+  const columns = [
+    { title: "ID", dataIndex: "id", width: 70 },
+    { title: "Name", dataIndex: "name" },
+    {
+      title: "Category",
+      render: (_, record) => record.category?.name ?? "-",
+    },
+    {
+      title: "Price",
+      dataIndex: "price",
+      render: (price) => Number(price).toFixed(2),
+    },
+    {
+      title: "Status",
+      dataIndex: "is_active",
+      render: (active) =>
+        active ? (
+          <Tag color="green">Active</Tag>
+        ) : (
+          <Tag color="red">Inactive</Tag>
+        ),
+    },
+    { title: "Created", dataIndex: "created_at" },
+    {
+      title: "Action",
+      width: 110,
+      render: (_, record) => (
+        <Button
+          type="primary"
+          ghost
+          size="small"
+          onClick={() => navigate(`/dashboard/products/${record.id}`)}
+        >
+          Details
+        </Button>
+      ),
+    },
+  ];
 
   return (
     <div style={{ padding: 24 }}>
       <Typography.Title level={3}>Products</Typography.Title>
 
       {error && (
-        <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} />
+        <Alert
+          type="error"
+          showIcon
+          message={error}
+          style={{ marginBottom: 16 }}
+        />
       )}
 
       <Table
