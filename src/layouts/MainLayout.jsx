@@ -1,10 +1,8 @@
 import { Button, Layout, Menu, Typography } from "antd";
 import {
   BellOutlined,
-  DashboardOutlined,
   LogoutOutlined,
   ShoppingCartOutlined,
-  ShoppingOutlined,
 } from "@ant-design/icons";
 
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
@@ -14,9 +12,6 @@ import { logout } from "@/features/auth/api";
 const { Sider, Header, Content } = Layout;
 
 const items = [
-  { key: "/dashboard", icon: <DashboardOutlined />, label: "Overview" },
-  { key: "/dashboard/products", icon: <ShoppingOutlined />, label: "Products" },
-
   { key: "/dashboard/orders", icon: <ShoppingCartOutlined />, label: "Orders" },
 
   {
@@ -31,7 +26,7 @@ export default function MainLayout() {
   const location = useLocation();
 
   const selectedKey = location.pathname.startsWith("/dashboard/products/")
-    ? "/dashboard/products"
+    ? "/dashboard"
     : location.pathname;
 
   const handleLogout = async () => {

@@ -1,7 +1,8 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import LoginPage from "@/pages/Login/LoginPage";
 import MainLayout from "@/layouts/MainLayout";
-import OverviewPage from "@/pages/Overview/OverviewPage";
+import ProtectedRoute from "@/components/ProtectedRoute";
+
 import ProductsPage from "@/pages/Products/ProductsPage";
 import CategoriesPage from "@/pages/Categories/CategoriesPage";
 import OrdersPage from "@/pages/Orders/OrdersPage";
@@ -13,19 +14,18 @@ import AddProductPage from "@/pages/Products/AddProductPage";
 export default function App() {
   return (
     <Routes>
-      {/* صفحة بدون إطار */}
       <Route path="/login" element={<LoginPage />} />
 
-      {/* صفحات داخل إطار الداشبورد */}
-      <Route path="/dashboard" element={<MainLayout />}>
-        <Route index element={<OverviewPage />} />
-        <Route path="products" element={<ProductsPage />} />
-        <Route path="products/add" element={<AddProductPage />} />
-        <Route path="categories" element={<CategoriesPage />} />
-        <Route path="products/:id" element={<ProductDetailsPage />} />
-        <Route path="orders" element={<OrdersPage />} />
-        <Route path="users" element={<UsersPage />} />
-        <Route path="notifications" element={<NotificationsPage />} />
+      <Route element={<ProtectedRoute />}>
+        <Route path="/dashboard" element={<MainLayout />}>
+          <Route index element={<ProductsPage />} />
+          <Route path="products/add" element={<AddProductPage />} />
+          <Route path="products/:id" element={<ProductDetailsPage />} />
+          <Route path="categories" element={<CategoriesPage />} />
+          <Route path="orders" element={<OrdersPage />} />
+          <Route path="users" element={<UsersPage />} />
+          <Route path="notifications" element={<NotificationsPage />} />
+        </Route>
       </Route>
 
       <Route path="*" element={<Navigate to="/login" replace />} />
