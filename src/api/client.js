@@ -3,7 +3,7 @@ import { TOKEN_KEY } from "@/constants/storage";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
-  timeout: 0,
+  timeout: 10000,
   headers: {
     Accept: "application/json",
     "ngrok-free-app": "true",

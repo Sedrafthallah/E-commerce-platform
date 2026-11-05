@@ -3,6 +3,7 @@ import {
   BellOutlined,
   LogoutOutlined,
   ShoppingCartOutlined,
+  ShoppingOutlined,
 } from "@ant-design/icons";
 
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
@@ -12,8 +13,9 @@ import { logout } from "@/features/auth/api";
 const { Sider, Header, Content } = Layout;
 
 const items = [
-  { key: "/dashboard/orders", icon: <ShoppingCartOutlined />, label: "Orders" },
+  { key: "/dashboard", icon: <ShoppingOutlined />, label: "Products" },
 
+  { key: "/dashboard/orders", icon: <ShoppingCartOutlined />, label: "Orders" },
   {
     key: "/dashboard/notifications",
     icon: <BellOutlined />,
@@ -25,7 +27,7 @@ export default function MainLayout() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const selectedKey = location.pathname.startsWith("/dashboard/products/")
+  const selectedKey = location.pathname.startsWith("/dashboard/products")
     ? "/dashboard"
     : location.pathname;
 

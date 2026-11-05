@@ -19,6 +19,7 @@ export default function App() {
       <Route element={<ProtectedRoute />}>
         <Route path="/dashboard" element={<MainLayout />}>
           <Route index element={<ProductsPage />} />
+          <Route path="products" element={<ProductsPage />} />
           <Route path="products/add" element={<AddProductPage />} />
           <Route path="products/:id" element={<ProductDetailsPage />} />
           <Route path="categories" element={<CategoriesPage />} />
