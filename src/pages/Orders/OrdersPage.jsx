@@ -21,7 +21,14 @@ const statusColors = {
   Cancelled: "red",
 };
 
-const tabs = ["all", "Pending", "Confirmed", "Shipped", "Delivered", "Cancelled"];
+const tabs = [
+  "all",
+  "Pending",
+  "Confirmed",
+  "Shipped",
+  "Delivered",
+  "Cancelled",
+];
 
 export default function OrdersPage() {
   const [items, setItems] = useState([]);
@@ -77,7 +84,7 @@ export default function OrdersPage() {
     try {
       await changeOrderStatus(id, newStatus);
       message.success(`Order #${id} is now ${newStatus}`);
-      setReloadKey((k) => k + 1); // يعيد تحميل الجدول
+      setReloadKey((k) => k + 1);
     } catch (err) {
       message.error(getErrorMessage(err));
     } finally {
@@ -162,7 +169,12 @@ export default function OrdersPage() {
       </Space>
 
       {error && (
-        <Alert type="error" showIcon title={error} style={{ marginBottom: 16 }} />
+        <Alert
+          type="error"
+          showIcon
+          title={error}
+          style={{ marginBottom: 16 }}
+        />
       )}
 
       <Card title="Orders List">

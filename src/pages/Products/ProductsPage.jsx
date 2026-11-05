@@ -118,17 +118,6 @@ export default function ProductsPage() {
 
   return (
     <div>
-      {/* <Typography.Title level={3} style={{ marginBottom: 4 }}>
-        Products
-      </Typography.Title>
-      <Space>
-        <Button
-          type="primary"
-          onClick={() => navigate("/dashboard/products/add")}
-        >
-          + Add Product
-        </Button>
-      </Space> */}
       <div
         style={{
           display: "flex",

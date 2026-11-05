@@ -8,7 +8,7 @@ import { colors } from "@/theme/colors";
 import { useNavigate } from "react-router-dom";
 
 export default function LoginPage() {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -19,14 +19,13 @@ export default function LoginPage() {
       const body = await login(values);
       const { access_token, user } = body.data;
 
-      // Dashboard is for the Responsible role only
       if (user.role !== "Responsible") {
         setError("This account is not allowed to access the dashboard");
         return;
       }
 
       localStorage.setItem(TOKEN_KEY, access_token);
-  navigate("/dashboard", { replace: true });
+      navigate("/dashboard", { replace: true });
     } catch (err) {
       const status = err.response?.status;
       if (status === 401) setError("Incorrect email or password");
@@ -61,18 +60,31 @@ export default function LoginPage() {
       >
         <Typography.Title
           level={2}
-          style={{ textAlign: "center", marginBottom: 4, color: colors.textPrimary }}
+          style={{
+            textAlign: "center",
+            marginBottom: 4,
+            color: colors.textPrimary,
+          }}
         >
           Sign in
         </Typography.Title>
         <Typography.Paragraph
-          style={{ textAlign: "center", marginBottom: 28, color: colors.textSecondary }}
+          style={{
+            textAlign: "center",
+            marginBottom: 28,
+            color: colors.textSecondary,
+          }}
         >
           Welcome back, sign in to continue
         </Typography.Paragraph>
 
         {error && (
-          <Alert type="error" showIcon message={error} style={{ marginBottom: 20 }} />
+          <Alert
+            type="error"
+            showIcon
+            message={error}
+            style={{ marginBottom: 20 }}
+          />
         )}
 
         <Form layout="vertical" onFinish={onFinish} requiredMark={false}>
