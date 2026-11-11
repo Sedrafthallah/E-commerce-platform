@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import {
   Alert,
@@ -10,6 +11,7 @@ import {
   Typography,
   message,
 } from "antd";
+
 import { changeOrderStatus, getOrders } from "@/features/orders/api";
 import { getErrorMessage } from "@/utils/getErrorMessage";
 
@@ -33,54 +35,87 @@ const tabs = [
 export default function OrdersPage() {
   const [items, setItems] = useState([]);
   const [status, setStatus] = useState("all");
-  const [page, setPage] = useState(1);
+
   const [pagination, setPagination] = useState({
-    current_page: 1,
     per_page: 5,
-    total: 0,
+    has_more_pages: false,
+    next_cursor: null,
   });
+
+  // حفظ الـ Cursors للتنقل بين الصفحات
+  const [cursors, setCursors] = useState([null]);
+  const cursor = cursors[cursors.length - 1];
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [reloadKey, setReloadKey] = useState(0);
   const [updatingId, setUpdatingId] = useState(null);
 
+  // Load orders when cursor, status, or reloadKey changes
   useEffect(() => {
     let ignore = false;
 
     async function load() {
       setLoading(true);
       setError("");
+
       try {
         const body = await getOrders({
-          page,
           per_page: 5,
+          ...(cursor && { cursor }),
           ...(status !== "all" && { status }),
         });
+
         if (ignore) return;
+
         setItems(body.data?.orders || []);
         setPagination(
-          body.data?.pagination || { current_page: 1, per_page: 5, total: 0 },
+          body.data?.pagination || {
+            per_page: 5,
+            has_more_pages: false,
+            next_cursor: null,
+          },
         );
       } catch (err) {
-        if (!ignore) setError(getErrorMessage(err));
+        if (!ignore) {
+          setError(getErrorMessage(err));
+        }
       } finally {
-        if (!ignore) setLoading(false);
+        if (!ignore) {
+          setLoading(false);
+        }
       }
     }
 
     load();
+
     return () => {
       ignore = true;
     };
-  }, [page, status, reloadKey]);
+  }, [cursor, status, reloadKey]);
 
+  // Reset pagination when status changes
   const handleTabChange = (newStatus) => {
     setStatus(newStatus);
-    setPage(1);
+    setCursors([null]);
   };
 
+  // Go to next page
+  const goNext = () => {
+    if (pagination.has_more_pages && pagination.next_cursor) {
+      setCursors((prev) => [...prev, pagination.next_cursor]);
+    }
+  };
+
+  // Go to previous page
+  const goPrev = () => {
+    setCursors((prev) => prev.slice(0, -1));
+  };
+
+  // Change order status
   const handleChangeStatus = async (id, newStatus) => {
     setUpdatingId(id);
+
     try {
       await changeOrderStatus(id, newStatus);
       message.success(`Order #${id} is now ${newStatus}`);
@@ -151,6 +186,7 @@ export default function OrdersPage() {
       <Typography.Title level={3} style={{ marginBottom: 4 }}>
         Orders
       </Typography.Title>
+
       <Typography.Paragraph type="secondary">
         Browse orders and update their status.
       </Typography.Paragraph>
@@ -172,7 +208,7 @@ export default function OrdersPage() {
         <Alert
           type="error"
           showIcon
-          title={error}
+          message={error}
           style={{ marginBottom: 16 }}
         />
       )}
@@ -184,14 +220,37 @@ export default function OrdersPage() {
           dataSource={items}
           columns={columns}
           scroll={{ x: true }}
-          pagination={{
-            current: pagination.current_page,
-            pageSize: pagination.per_page,
-            total: pagination.total,
-            showSizeChanger: false,
-            onChange: setPage,
-          }}
+          pagination={false}
         />
+
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            alignItems: "center",
+            gap: 12,
+            marginTop: 16,
+          }}
+        >
+          <Typography.Text type="secondary">
+            Page {cursors.length}
+          </Typography.Text>
+
+          <Button
+            onClick={goPrev}
+            disabled={cursors.length === 1 || loading}
+          >
+            Previous
+          </Button>
+
+          <Button
+            type="primary"
+            onClick={goNext}
+            disabled={!pagination.has_more_pages || loading}
+          >
+            Next
+          </Button>
+        </div>
       </Card>
     </div>
   );
