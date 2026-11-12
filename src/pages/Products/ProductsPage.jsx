@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { Alert, Button, Card, Space, Table, Tag, Typography } from "antd";
 import { useNavigate } from "react-router-dom";
@@ -12,12 +13,15 @@ export default function ProductsPage() {
   const [items, setItems] = useState([]);
 
   const [pagination, setPagination] = useState({
-    current_page: 1,
     per_page: 5,
-    total: 0,
+    has_more_pages: false,
+    next_cursor: null,
   });
 
-  const [page, setPage] = useState(1);
+  // Cursor history: أول عنصر null يمثل الصفحة الأولى
+  const [cursors, setCursors] = useState([null]);
+  const cursor = cursors[cursors.length - 1];
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -30,7 +34,7 @@ export default function ProductsPage() {
       .catch((err) => setError(getErrorMessage(err)));
   }, []);
 
-  // Load products when page or category changes
+  // Load products when cursor or category changes
   useEffect(() => {
     let ignore = false;
 
@@ -40,9 +44,9 @@ export default function ProductsPage() {
 
       try {
         const body = await getProducts({
-          page,
           per_page: 5,
           include_inactive: 1,
+          ...(cursor && { cursor }),
           ...(categoryId !== "all" && {
             category_id: categoryId,
           }),
@@ -68,11 +72,24 @@ export default function ProductsPage() {
     return () => {
       ignore = true;
     };
-  }, [page, categoryId]);
+  }, [cursor, categoryId]);
 
+  // Reset pagination when category changes
   const handleCategoryChange = (id) => {
     setCategoryId(id);
-    setPage(1);
+    setCursors([null]);
+  };
+
+  // Go to next page
+  const goNext = () => {
+    if (pagination.has_more_pages && pagination.next_cursor) {
+      setCursors((prev) => [...prev, pagination.next_cursor]);
+    }
+  };
+
+  // Go to previous page
+  const goPrev = () => {
+    setCursors((prev) => prev.slice(0, -1));
   };
 
   const tabs = [{ id: "all", name: "All" }, ...categories];
@@ -171,14 +188,37 @@ export default function ProductsPage() {
           dataSource={items}
           columns={columns}
           scroll={{ x: true }}
-          pagination={{
-            current: pagination.current_page,
-            pageSize: pagination.per_page,
-            total: pagination.total,
-            showSizeChanger: false,
-            onChange: setPage,
-          }}
+          pagination={false}
         />
+
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            alignItems: "center",
+            gap: 12,
+            marginTop: 16,
+          }}
+        >
+          <Typography.Text type="secondary">
+            Page {cursors.length}
+          </Typography.Text>
+
+          <Button
+            onClick={goPrev}
+            disabled={cursors.length === 1 || loading}
+          >
+            Previous
+          </Button>
+
+          <Button
+            type="primary"
+            onClick={goNext}
+            disabled={!pagination.has_more_pages || loading}
+          >
+            Next
+          </Button>
+        </div>
       </Card>
     </div>
   );
