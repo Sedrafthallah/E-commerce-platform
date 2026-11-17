@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Alert, Button, Card, Space, Table, Tag, Typography } from "antd";
 import { useNavigate } from "react-router-dom";
@@ -204,10 +203,7 @@ export default function ProductsPage() {
             Page {cursors.length}
           </Typography.Text>
 
-          <Button
-            onClick={goPrev}
-            disabled={cursors.length === 1 || loading}
-          >
+          <Button onClick={goPrev} disabled={cursors.length === 1 || loading}>
             Previous
           </Button>
 
