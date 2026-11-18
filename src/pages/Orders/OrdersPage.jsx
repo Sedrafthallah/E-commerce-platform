@@ -1,4 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+
+import { useEffect, useState } from "react";
+
 import {
   Alert,
   Button,
@@ -52,18 +54,6 @@ export default function OrdersPage() {
   const [reloadKey, setReloadKey] = useState(0);
   const [updatingId, setUpdatingId] = useState(null);
 
-  // الاحتفاظ بآخر فلتر ورقم صفحة حتى يستخدمهما حدث Pusher
-  const statusRef = useRef(status);
-  const isFirstPageRef = useRef(cursors.length === 1);
-
-  useEffect(() => {
-    statusRef.current = status;
-  }, [status]);
-
-  useEffect(() => {
-    isFirstPageRef.current = cursors.length === 1;
-  }, [cursors.length]);
-
   // Load orders when cursor, status, or reloadKey changes
   useEffect(() => {
     let ignore = false;
@@ -107,11 +97,11 @@ export default function OrdersPage() {
     };
   }, [cursor, status, reloadKey]);
 
-  // Pusher: استقبال الطلبات الجديدة مباشرةً
+  // Pusher: استقبال الطلبات الجديدة وإعادة جلبها من API
   useEffect(() => {
     const pusher = createPusher();
-
     const channel = pusher.subscribe("private-admin.orders");
+
     pusher.connection.bind("state_change", (states) => {
       console.log("Pusher state:", states.previous, "=>", states.current);
     });
@@ -141,25 +131,8 @@ export default function OrdersPage() {
         placement: "topRight",
       });
 
-      // لا نضيف الطلب إذا كنا بصفحة أخرى غير الصفحة الأولى
-      if (!isFirstPageRef.current) return;
-
-      // إذا كان المستخدم يفلتر حسب الحالة، نضيف الطلب فقط إذا كانت حالته مطابقة
-      const currentStatus = statusRef.current;
-
-      if (currentStatus !== "all" && newOrder.status !== currentStatus) {
-        return;
-      }
-
-      setItems((prevItems) => {
-        // منع تكرار الطلب
-        const alreadyExists = prevItems.some((item) => item.id === newOrder.id);
-
-        if (alreadyExists) return prevItems;
-
-        // إضافة الطلب الجديد في بداية الجدول
-        return [{ ...newOrder, _isRealtime: true }, ...prevItems];
-      });
+      // إعادة جلب الطلبات من API عند وصول طلب جديد
+      setReloadKey((k) => k + 1);
     };
 
     channel.bind("order.placed", handleNewOrder);
@@ -205,17 +178,7 @@ export default function OrdersPage() {
   };
 
   const columns = [
-    {
-      title: "ID",
-      dataIndex: "id",
-      width: 110,
-      render: (id, record) => (
-        <Space>
-          <span>{id}</span>
-          {record._isRealtime && <Tag color="green">New</Tag>}
-        </Space>
-      ),
-    },
+    { title: "ID", dataIndex: "id", width: 70 },
     { title: "User ID", dataIndex: "user_id" },
     {
       title: "Total Amount",
@@ -339,3 +302,4 @@ export default function OrdersPage() {
     </div>
   );
 }
+
