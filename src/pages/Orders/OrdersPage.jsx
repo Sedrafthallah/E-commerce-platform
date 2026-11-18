@@ -1,5 +1,6 @@
 
 import { useEffect, useState } from "react";
+
 import {
   Alert,
   Button,
@@ -10,10 +11,12 @@ import {
   Tag,
   Typography,
   message,
+  notification,
 } from "antd";
 
 import { changeOrderStatus, getOrders } from "@/features/orders/api";
 import { getErrorMessage } from "@/utils/getErrorMessage";
+import { createPusher } from "@/lib/pusher";
 
 const statusColors = {
   Pending: "orange",
@@ -93,6 +96,53 @@ export default function OrdersPage() {
       ignore = true;
     };
   }, [cursor, status, reloadKey]);
+
+  // Pusher: استقبال الطلبات الجديدة وإعادة جلبها من API
+  useEffect(() => {
+    const pusher = createPusher();
+    const channel = pusher.subscribe("private-admin.orders");
+
+    pusher.connection.bind("state_change", (states) => {
+      console.log("Pusher state:", states.previous, "=>", states.current);
+    });
+
+    channel.bind("pusher:subscription_succeeded", () => {
+      console.log("Successfully subscribed to private-admin.orders");
+    });
+
+    channel.bind("pusher:subscription_error", (error) => {
+      console.error("Channel subscription failed:", error);
+    });
+
+    const handleNewOrder = (data) => {
+      const newOrder = data?.order;
+
+      if (!newOrder?.id) {
+        console.warn(
+          "Received order.placed event without a valid order:",
+          data,
+        );
+        return;
+      }
+
+      notification.success({
+        message: "New order received",
+        description: `Order #${newOrder.id} has been placed.`,
+        placement: "topRight",
+      });
+
+      // إعادة جلب الطلبات من API عند وصول طلب جديد
+      setReloadKey((k) => k + 1);
+    };
+
+    channel.bind("order.placed", handleNewOrder);
+
+    return () => {
+      channel.unbind("order.placed", handleNewOrder);
+      pusher.unsubscribe("private-admin.orders");
+      pusher.disconnect();
+    };
+  }, []);
 
   // Reset pagination when status changes
   const handleTabChange = (newStatus) => {
@@ -236,10 +286,7 @@ export default function OrdersPage() {
             Page {cursors.length}
           </Typography.Text>
 
-          <Button
-            onClick={goPrev}
-            disabled={cursors.length === 1 || loading}
-          >
+          <Button onClick={goPrev} disabled={cursors.length === 1 || loading}>
             Previous
           </Button>
 
@@ -255,3 +302,4 @@ export default function OrdersPage() {
     </div>
   );
 }
+

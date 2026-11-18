@@ -1,4 +1,5 @@
 import api from "@/api/client";
+import { getWithETag } from "@/api/etagCache";
 
 export const getCategories = (params) =>
-  api.get("/categories", { params }).then((res) => res.data);
+  getWithETag(api, "/categories", { params }).then((res) => res.data);

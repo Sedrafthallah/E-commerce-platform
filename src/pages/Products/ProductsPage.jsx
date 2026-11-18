@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Alert, Button, Card, Space, Table, Tag, Typography } from "antd";
 import { useNavigate } from "react-router-dom";
@@ -12,6 +11,11 @@ export default function ProductsPage() {
   const [categoryId, setCategoryId] = useState("all");
   const [items, setItems] = useState([]);
 
+  // Pagination للتصنيفات
+  const [categoryPage, setCategoryPage] = useState(1);
+  const categoriesPerPage = 5;
+
+  // Pagination للمنتجات
   const [pagination, setPagination] = useState({
     per_page: 5,
     has_more_pages: false,
@@ -74,25 +78,34 @@ export default function ProductsPage() {
     };
   }, [cursor, categoryId]);
 
-  // Reset pagination when category changes
+  // Reset product pagination when category changes
   const handleCategoryChange = (id) => {
     setCategoryId(id);
     setCursors([null]);
   };
 
-  // Go to next page
+  // Go to next products page
   const goNext = () => {
     if (pagination.has_more_pages && pagination.next_cursor) {
       setCursors((prev) => [...prev, pagination.next_cursor]);
     }
   };
 
-  // Go to previous page
+  // Go to previous products page
   const goPrev = () => {
     setCursors((prev) => prev.slice(0, -1));
   };
 
+  // Categories tabs
   const tabs = [{ id: "all", name: "All" }, ...categories];
+
+  // Local pagination for category tabs
+  const totalCategoryPages = Math.ceil(tabs.length / categoriesPerPage);
+
+  const visibleTabs = tabs.slice(
+    (categoryPage - 1) * categoriesPerPage,
+    categoryPage * categoriesPerPage,
+  );
 
   const columns = [
     { title: "ID", dataIndex: "id", width: 70 },
@@ -135,6 +148,7 @@ export default function ProductsPage() {
 
   return (
     <div>
+      {/* Page Header */}
       <div
         style={{
           display: "flex",
@@ -159,19 +173,55 @@ export default function ProductsPage() {
         Browse products by category.
       </Typography.Paragraph>
 
-      <Space wrap style={{ marginBottom: 20 }}>
-        {tabs.map((tab) => (
-          <Button
-            key={tab.id}
-            shape="round"
-            type={categoryId === tab.id ? "primary" : "default"}
-            onClick={() => handleCategoryChange(tab.id)}
-          >
-            {tab.name}
-          </Button>
-        ))}
-      </Space>
+      {/* Category Tabs */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+          marginBottom: 20,
+          flexWrap: "wrap",
+        }}
+      >
+        <Space wrap>
+          {visibleTabs.map((tab) => (
+            <Button
+              key={tab.id}
+              shape="round"
+              type={categoryId === tab.id ? "primary" : "default"}
+              onClick={() => handleCategoryChange(tab.id)}
+            >
+              {tab.name}
+            </Button>
+          ))}
+        </Space>
 
+        {totalCategoryPages > 1 && (
+          <Space>
+            <Button
+              size="small"
+              disabled={categoryPage === 1}
+              onClick={() => setCategoryPage((page) => page - 1)}
+            >
+              Previous
+            </Button>
+
+            <Typography.Text type="secondary">
+              {categoryPage} / {totalCategoryPages}
+            </Typography.Text>
+
+            <Button
+              size="small"
+              disabled={categoryPage === totalCategoryPages}
+              onClick={() => setCategoryPage((page) => page + 1)}
+            >
+              Next
+            </Button>
+          </Space>
+        )}
+      </div>
+
+      {/* Error Message */}
       {error && (
         <Alert
           type="error"
@@ -181,6 +231,7 @@ export default function ProductsPage() {
         />
       )}
 
+      {/* Products Table */}
       <Card title="Product List">
         <Table
           rowKey="id"
@@ -191,6 +242,7 @@ export default function ProductsPage() {
           pagination={false}
         />
 
+        {/* Products Pagination */}
         <div
           style={{
             display: "flex",
@@ -204,10 +256,7 @@ export default function ProductsPage() {
             Page {cursors.length}
           </Typography.Text>
 
-          <Button
-            onClick={goPrev}
-            disabled={cursors.length === 1 || loading}
-          >
+          <Button onClick={goPrev} disabled={cursors.length === 1 || loading}>
             Previous
           </Button>
 
